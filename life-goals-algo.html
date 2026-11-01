@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#000000">
+    <meta name="description" content="A guided reflection to organize personal goals and practical next steps.">
+    <title>Life Goals Algo — DestinyTech</title>
+    <link rel="stylesheet" href="apps.css">
+    <script src="apps.js" defer></script>
+  </head>
+  <body class="experience-page" data-app="goals">
+    <header class="app-header">
+      <a class="app-wordmark" href="index.html">DESTINY<span>TECH</span></a>
+      <a class="app-home-link" href="index.html">← Back to DestinyTech</a>
+    </header>
+    <main class="app-container goals-page">
+      <section class="app-intro">
+        <p class="app-kicker">DESTINYTECH / PERSONAL REFLECTION</p>
+        <h1>Life Goals <span>Algo</span></h1>
+        <p>A thoughtful pause to name what matters and decide what to do next.</p>
+      </section>
+
+      <section class="goal-card" aria-labelledby="goal-card-title">
+        <div class="progress-header">
+          <div><p class="app-kicker">YOUR REFLECTION</p><h2 id="goal-card-title">One step at a time</h2></div>
+          <span class="step-count" id="goal-step-count">01 / 08</span>
+        </div>
+        <div class="progress-track" role="progressbar" id="goal-progress" aria-label="Questionnaire progress" aria-valuemin="1" aria-valuemax="8" aria-valuenow="1">
+          <span id="goal-progress-bar"></span>
+        </div>
+        <form id="goal-form" novalidate>
+          <fieldset class="goal-step" data-step="0">
+            <legend>On a scale of 1–10, how happy are you with your current life?</legend>
+            <p class="question-hint">There is no right answer. Use the number that feels honest today.</p>
+            <label class="range-label" for="life-happiness"><span>Not very</span><output id="happiness-value" for="life-happiness">5</output><span>Very</span></label>
+            <input id="life-happiness" name="happiness" type="range" min="1" max="10" value="5">
+          </fieldset>
+          <fieldset class="goal-step" data-step="1" hidden>
+            <legend>What are the three most important goals you want to achieve?</legend>
+            <p class="question-hint">Add one goal per line. You can list fewer than three if that feels right.</p>
+            <textarea name="goals" rows="5" maxlength="700" required placeholder="1.&#10;2.&#10;3."></textarea>
+          </fieldset>
+          <fieldset class="goal-step" data-step="2" hidden>
+            <legend>What is currently holding you back from achieving these goals?</legend>
+            <p class="question-hint">Consider time, resources, confidence, support, or competing priorities.</p>
+            <textarea name="obstacles" rows="4" maxlength="700" required placeholder="What feels like the main challenge?"></textarea>
+          </fieldset>
+          <fieldset class="goal-step" data-step="3" hidden>
+            <legend>What area of your life needs the most improvement?</legend>
+            <p class="question-hint">Choose the area you would most like to focus on right now.</p>
+            <select name="lifeArea" required>
+              <option value="">Choose an area</option>
+              <option>Health and wellbeing</option><option>Career and work</option>
+              <option>Finances</option><option>Relationships and family</option>
+              <option>Learning and personal growth</option><option>Purpose and creativity</option>
+              <option>Balance and daily routine</option>
+            </select>
+          </fieldset>
+          <fieldset class="goal-step" data-step="4" hidden>
+            <legend>How disciplined would you rate yourself from 1–10?</legend>
+            <p class="question-hint">Think about how consistently you follow through on plans that matter to you.</p>
+            <label class="range-label" for="self-discipline"><span>Building the habit</span><output id="discipline-value" for="self-discipline">5</output><span>Very consistent</span></label>
+            <input id="self-discipline" name="discipline" type="range" min="1" max="10" value="5">
+          </fieldset>
+          <fieldset class="goal-step" data-step="5" hidden>
+            <legend>What is one thing you wish you could change about your current situation?</legend>
+            <p class="question-hint">Describe the change in your own words.</p>
+            <textarea name="desiredChange" rows="4" maxlength="700" required placeholder="I wish I could…"></textarea>
+          </fieldset>
+          <fieldset class="goal-step" data-step="6" hidden>
+            <legend>Where do you see yourself in the next five years?</legend>
+            <p class="question-hint">Picture a direction, not a perfect plan.</p>
+            <textarea name="fiveYears" rows="4" maxlength="700" required placeholder="In five years, I hope to…"></textarea>
+          </fieldset>
+          <fieldset class="goal-step" data-step="7" hidden>
+            <legend>What is stopping you from becoming the person you want to be?</legend>
+            <p class="question-hint">You can mention practical or personal barriers that feel relevant.</p>
+            <textarea name="identityBarrier" rows="4" maxlength="700" required placeholder="One thing in the way is…"></textarea>
+          </fieldset>
+          <p class="form-error" id="goal-error" role="alert" hidden></p>
+          <div class="goal-actions" id="goal-actions">
+            <button class="app-button app-button-quiet" id="goal-back" type="button" disabled>← Previous</button>
+            <button class="app-button" id="goal-next" type="button">Continue <span aria-hidden="true">→</span></button>
+            <button class="app-button" id="goal-submit" type="submit" hidden>Build my report <span aria-hidden="true">→</span></button>
+          </div>
+        </form>
+        <section class="goal-results" id="goal-results" aria-live="polite" hidden>
+          <p class="app-kicker">YOUR PERSONAL REFLECTION</p>
+          <h2 tabindex="-1">A clearer next step.</h2>
+          <p class="results-note">This report is generated from your answers using simple reflection prompts. It is not a psychological assessment or professional advice.</p>
+          <div class="results-section"><h3>Your goals, in priority order</h3><ol id="report-goals"></ol></div>
+          <div class="results-section"><h3>Your five-year direction</h3><p id="report-direction"></p></div>
+          <div class="results-section"><h3>Possible obstacles to consider</h3><ul id="report-obstacles"></ul></div>
+          <div class="results-section"><h3>Small actions to try</h3><ul id="report-actions"></ul></div>
+          <button class="app-button app-button-quiet" id="goal-restart" type="button">Start a new reflection</button>
+        </section>
+      </section>
+      <p class="privacy-note">Your answers stay in this browser session and are not sent to a server.</p>
+    </main>
+    <footer class="app-footer">DESTINYTECH <span>•</span> INNOVATION / DESIGN / RESULTS</footer>
+  </body>
+</html>

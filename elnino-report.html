@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#000000">
+    <meta name="description" content="Current weather and heat-risk information for Nigerian cities.">
+    <title>ElNino Report — DestinyTech</title>
+    <link rel="stylesheet" href="apps.css">
+    <script src="apps.js" defer></script>
+  </head>
+  <body class="experience-page" data-app="weather">
+    <header class="app-header">
+      <a class="app-wordmark" href="index.html">DESTINY<span>TECH</span></a>
+      <a class="app-home-link" href="index.html">← Back to DestinyTech</a>
+    </header>
+    <main class="app-container weather-page">
+      <section class="app-intro">
+        <p class="app-kicker">DESTINYTECH / CLIMATE</p>
+        <h1>ElNino <span>Report</span></h1>
+        <p>Current conditions and heat awareness for cities across Nigeria.</p>
+      </section>
+
+      <section class="weather-panel" aria-labelledby="weather-heading">
+        <div class="weather-controls">
+          <label class="field-label" for="weather-city">Choose a Nigerian city</label>
+          <div class="search-row">
+            <input id="weather-city" name="city" list="nigeria-cities" value="Lagos" autocomplete="off">
+            <datalist id="nigeria-cities">
+              <option value="Abuja"></option><option value="Abeokuta"></option>
+              <option value="Akure"></option><option value="Awka"></option>
+              <option value="Bauchi"></option><option value="Benin City"></option>
+              <option value="Calabar"></option><option value="Enugu"></option>
+              <option value="Ibadan"></option><option value="Ilorin"></option>
+              <option value="Jos"></option><option value="Kaduna"></option>
+              <option value="Kano"></option><option value="Lagos"></option>
+              <option value="Maiduguri"></option><option value="Minna"></option>
+              <option value="Onitsha"></option><option value="Owerri"></option>
+              <option value="Port Harcourt"></option><option value="Sokoto"></option>
+              <option value="Uyo"></option><option value="Warri"></option>
+              <option value="Yola"></option><option value="Zaria"></option>
+            </datalist>
+            <button class="app-button" id="weather-search" type="button">Update report <span aria-hidden="true">↗</span></button>
+          </div>
+          <p class="app-hint">Search or choose a city. Weather data is provided by Open-Meteo.</p>
+        </div>
+
+        <p class="app-status" id="weather-status" role="status" aria-live="polite">Loading current weather…</p>
+        <div class="weather-data" id="weather-data" hidden>
+          <div class="weather-overview">
+            <div>
+              <p class="app-kicker" id="weather-location">LAGOS, NIGERIA</p>
+              <h2 id="weather-heading"><span id="weather-temperature">--</span><span class="temperature-unit">°C</span></h2>
+              <p class="weather-condition" id="weather-condition">—</p>
+            </div>
+            <div class="weather-symbol" aria-hidden="true"><span></span></div>
+          </div>
+          <div class="heat-risk" id="heat-risk" data-risk="normal" aria-live="polite">
+            <span class="risk-pulse" aria-hidden="true"></span>
+            <div><p class="app-kicker">HEAT RISK</p><strong id="heat-risk-label">Normal</strong></div>
+            <p id="heat-risk-message">Conditions are below the high-heat range.</p>
+          </div>
+          <div class="weather-metrics">
+            <div><span>Feels like</span><strong id="weather-feels">—</strong></div>
+            <div><span>Humidity</span><strong id="weather-humidity">—</strong></div>
+            <div><span>Wind speed</span><strong id="weather-wind">—</strong></div>
+          </div>
+          <p class="weather-updated">Latest weather update <time id="weather-time"></time></p>
+        </div>
+      </section>
+      <p class="weather-disclaimer">Heat categories are general awareness indicators, not medical advice. Extreme heat alerts begin at 40°C.</p>
+    </main>
+    <footer class="app-footer">DESTINYTECH <span>•</span> INNOVATION / DESIGN / RESULTS</footer>
+  </body>
+</html>

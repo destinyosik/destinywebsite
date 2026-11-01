@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#000000">
+    <meta name="description" content="Share customer feedback about companies operating in Nigeria.">
+    <title>Customer Feedback — DestinyTech</title>
+    <link rel="stylesheet" href="apps.css">
+    <script src="apps.js" defer></script>
+  </head>
+  <body class="experience-page" data-app="feedback">
+    <header class="app-header">
+      <a class="app-wordmark" href="index.html">DESTINY<span>TECH</span></a>
+      <a class="app-home-link" href="index.html">← Back to DestinyTech</a>
+    </header>
+    <main class="app-container feedback-page">
+      <section class="app-intro">
+        <p class="app-kicker">DESTINYTECH / CUSTOMER VOICE</p>
+        <h1>Customer <span>Feedback</span></h1>
+        <p>Share a service experience and help make customer voices easier to understand.</p>
+      </section>
+
+      <div class="feedback-layout">
+        <section class="feedback-card" aria-labelledby="feedback-form-title">
+          <p class="app-kicker">YOUR EXPERIENCE</p>
+          <h2 id="feedback-form-title">Leave thoughtful feedback</h2>
+          <p class="form-intro">Keep it constructive. Do not include passwords, account numbers, or other sensitive information.</p>
+          <p class="success-message" id="feedback-message" role="status" aria-live="polite" tabindex="-1" hidden></p>
+          <form id="feedback-form">
+            <label class="field-label" for="company-search">Find a company</label>
+            <input id="company-search" type="search" placeholder="Search by company name…" autocomplete="off">
+            <label class="field-label" for="company-select">Company</label>
+            <select id="company-select" name="company" required>
+              <option value="">Choose a company</option>
+            </select>
+
+            <label class="field-label" for="service-category">Service category</label>
+            <select id="service-category" name="category" required>
+              <option value="">Choose a category</option>
+              <option>Customer service</option><option>Product quality</option>
+              <option>Delivery and fulfilment</option><option>Payments and billing</option>
+              <option>App or website</option><option>Network or connectivity</option>
+              <option>Travel experience</option><option>Other</option>
+            </select>
+
+            <fieldset class="rating-field">
+              <legend class="field-label">Rate your experience</legend>
+              <div class="star-rating" role="radiogroup" aria-label="Rating from one to five stars">
+                <input id="rating-5" name="rating" type="radio" value="5" required><label for="rating-5" aria-label="5 stars">★</label>
+                <input id="rating-4" name="rating" type="radio" value="4"><label for="rating-4" aria-label="4 stars">★</label>
+                <input id="rating-3" name="rating" type="radio" value="3"><label for="rating-3" aria-label="3 stars">★</label>
+                <input id="rating-2" name="rating" type="radio" value="2"><label for="rating-2" aria-label="2 stars">★</label>
+                <input id="rating-1" name="rating" type="radio" value="1"><label for="rating-1" aria-label="1 star">★</label>
+              </div>
+            </fieldset>
+
+            <label class="field-label" for="feedback-title">Feedback title</label>
+            <input id="feedback-title" name="title" type="text" maxlength="100" required placeholder="Summarize your experience">
+            <label class="field-label" for="feedback-description">Tell us more</label>
+            <textarea id="feedback-description" name="description" rows="5" maxlength="2000" required placeholder="What happened? What went well, or what could be improved?"></textarea>
+
+            <label class="anonymous-toggle"><input id="anonymous-feedback" name="anonymous" type="checkbox" checked> Submit anonymously</label>
+            <div class="optional-details" id="optional-details" hidden>
+              <label class="field-label" for="reviewer-name">Name <span>(optional)</span></label>
+              <input id="reviewer-name" name="name" type="text" maxlength="80" autocomplete="name">
+              <label class="field-label" for="reviewer-email">Email <span>(optional)</span></label>
+              <input id="reviewer-email" name="email" type="email" maxlength="254" autocomplete="email">
+            </div>
+            <p class="form-error" id="feedback-error" role="alert" hidden></p>
+            <button class="app-button app-button-full" type="submit">Submit feedback <span aria-hidden="true">↗</span></button>
+          </form>
+          <p class="storage-note">Demo mode: submissions are saved only in this browser on this device. They are not sent to DestinyTech or the company.</p>
+        </section>
+
+        <section class="feedback-dashboard" aria-labelledby="dashboard-title">
+          <div class="dashboard-heading">
+            <div><p class="app-kicker">COMMUNITY VOICE</p><h2 id="dashboard-title">Feedback dashboard</h2></div>
+            <label class="dashboard-filter" for="feedback-filter">Show
+              <select id="feedback-filter"><option value="">All companies</option></select>
+            </label>
+          </div>
+          <div class="feedback-stats" aria-live="polite">
+            <div><strong id="feedback-count">0</strong><span>Reviews</span></div>
+            <div><strong id="feedback-average">—</strong><span>Average rating</span></div>
+          </div>
+          <p class="dashboard-notice" id="dashboard-notice" role="status"></p>
+          <div class="feedback-list" id="feedback-list" aria-live="polite"></div>
+        </section>
+      </div>
+    </main>
+    <footer class="app-footer">DESTINYTECH <span>•</span> INNOVATION / DESIGN / RESULTS</footer>
+  </body>
+</html>
