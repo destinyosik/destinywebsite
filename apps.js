@@ -304,128 +304,206 @@ const companyGroups = {
   "Media": ["DSTV Nigeria", "GOtv Nigeria"]
 };
 
-const feedbackStorageKey = "destinytech:customer-feedback:v1";
+const supabaseUrl = "https://ehdrmtpcrgijxymkzryz.supabase.co";
+const supabasePublishableKey = "sb_publishable_mb4Wof77Y38eNGXYlThMGg_fo2xeJZY";
+const feedbackColumns = "id,company,category,rating,title,description,is_anonymous,display_name,created_at";
+const feedbackPageSize = 500;
 
-// Keep persistence behind this small adapter; its methods can later be replaced by a Supabase client.
-const feedbackStore = {
-  read() {
-    const saved = localStorage.getItem(feedbackStorageKey);
-    if (saved === null) return [];
-    const parsed = JSON.parse(saved);
-    if (!Array.isArray(parsed)) throw new Error("Saved feedback has an unexpected format.");
-    return parsed;
-  },
-  write(entries) {
-    localStorage.setItem(feedbackStorageKey, JSON.stringify(entries));
-  }
-};
-
-function initFeedbackPlatform() {
+async function initFeedbackPlatform() {
   const form = document.querySelector("#feedback-form");
   const companySelect = document.querySelector("#company-select");
   const companySearch = document.querySelector("#company-search");
   const filter = document.querySelector("#feedback-filter");
+  const dashboardSearch = document.querySelector("#dashboard-search");
+  const ratingFilter = document.querySelector("#rating-filter");
+  const sortSelect = document.querySelector("#review-sort");
   const anonymousCheckbox = document.querySelector("#anonymous-feedback");
   const optionalDetails = document.querySelector("#optional-details");
+  const reviewerName = document.querySelector("#reviewer-name");
+  const customCompanyField = document.querySelector("#custom-company-field");
+  const customCompany = document.querySelector("#custom-company");
   const error = document.querySelector("#feedback-error");
   const success = document.querySelector("#feedback-message");
-  let entries;
-  let storageReady = true;
+  const loading = document.querySelector("#feedback-loading");
+  const submitButton = form.querySelector('button[type="submit"]');
+  let entries = [];
+  let isSubmitting = false;
+  const feedbackClient = window.supabase?.createClient(supabaseUrl, supabasePublishableKey);
 
-  populateCompanyOptions(companySelect);
-  try {
-    entries = feedbackStore.read();
-    renderFeedbackDashboard(entries, filter.value);
-  } catch (readError) {
-    storageReady = false;
-    entries = [];
-    showFeedbackError(`Saved feedback could not be read. ${readError.message}`);
-    document.querySelector("#dashboard-notice").textContent = "Local demo storage is unavailable or contains unreadable data.";
+  function renderDashboard() {
+    renderFeedbackDashboard(entries, {
+      company: filter.value,
+      search: dashboardSearch.value,
+      rating: ratingFilter.value,
+      sort: sortSelect.value
+    });
   }
 
-  companySearch.addEventListener("input", () => {
-    const previousValue = companySelect.value;
-    populateCompanyOptions(companySelect, companySearch.value);
-    if ([...companySelect.options].some((option) => option.value === previousValue)) {
-      companySelect.value = previousValue;
-    }
-  });
-
-  anonymousCheckbox.addEventListener("change", () => {
-    optionalDetails.hidden = anonymousCheckbox.checked;
-    optionalDetails.querySelectorAll("input").forEach((input) => {
-      input.disabled = anonymousCheckbox.checked;
-    });
-  });
-  optionalDetails.querySelectorAll("input").forEach((input) => {
-    input.disabled = anonymousCheckbox.checked;
-  });
-
-  filter.addEventListener("change", () => renderFeedbackDashboard(entries, filter.value));
-
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-    success.hidden = true;
-    error.hidden = true;
-    if (!storageReady) {
-      showFeedbackError("Submissions are disabled because saved feedback could not be read safely in this browser.");
-      return;
-    }
-    if (!form.reportValidity()) return;
-
-    const formData = new FormData(form);
-    const company = String(formData.get("company") || "");
-    const rating = Number(formData.get("rating"));
-    const description = String(formData.get("description") || "").trim();
-    if (!company || !Number.isInteger(rating) || rating < 1 || rating > 5 || !description) {
-      error.textContent = "Please choose a company, a 1–5 star rating, and enter your feedback.";
-      error.hidden = false;
-      return;
-    }
-
-    const isAnonymous = anonymousCheckbox.checked;
-    const entry = {
-      id: createFeedbackId(),
-      company,
-      category: String(formData.get("category") || ""),
-      rating,
-      title: String(formData.get("title") || "").trim(),
-      description,
-      anonymous: isAnonymous,
-      name: isAnonymous ? "" : String(formData.get("name") || "").trim(),
-      email: isAnonymous ? "" : String(formData.get("email") || "").trim(),
-      createdAt: new Date().toISOString()
-    };
-
+  async function loadFeedback() {
+    loading.hidden = false;
     try {
-      entries = [...entries, entry];
-      feedbackStore.write(entries);
-      filter.value = "";
-      renderFeedbackDashboard(entries, "");
-      form.reset();
-      anonymousCheckbox.checked = true;
-      optionalDetails.hidden = true;
-      success.textContent = "Thank you — your feedback has been saved in this browser and added to the demo dashboard.";
-      success.hidden = false;
-      success.focus();
-    } catch (writeError) {
-      entries = entries.filter((existing) => existing.id !== entry.id);
-      error.textContent = `Your feedback could not be saved in this browser. ${writeError.message} Please try again.`;
-      error.hidden = false;
+      const allReviews = [];
+      for (let offset = 0; ; ) {
+        const { data, error: queryError, count } = await feedbackClient
+          .from("company_reviews")
+          .select(feedbackColumns, { count: "exact" })
+          .order("created_at", { ascending: false })
+          .order("id", { ascending: false })
+          .range(offset, offset + feedbackPageSize - 1);
+        if (queryError) throw queryError;
+        allReviews.push(...data);
+        if (count !== null && offset + data.length >= count) break;
+        if (!data.length) throw new Error("The review list could not be fully retrieved. Please reload and try again.");
+        offset += data.length;
+      }
+      entries = allReviews.map(normalizeFeedbackEntry);
+      populateCompanyOptions(companySelect, companySearch.value, entries);
+      renderDashboard();
+    } finally {
+      loading.hidden = true;
     }
-  });
+  }
 
   function showFeedbackError(message) {
     error.textContent = message;
     error.hidden = false;
   }
+
+  populateCompanyOptions(companySelect, "", entries);
+
+  companySearch.addEventListener("input", () => {
+    const previousValue = companySelect.value;
+    populateCompanyOptions(companySelect, companySearch.value, entries);
+    if ([...companySelect.options].some((option) => option.value === previousValue)) {
+      companySelect.value = previousValue;
+    }
+  });
+
+  companySelect.addEventListener("change", () => {
+    const isCustomCompany = companySelect.value === "__other__";
+    customCompanyField.hidden = !isCustomCompany;
+    customCompany.required = isCustomCompany;
+    if (!isCustomCompany) customCompany.value = "";
+  });
+
+  anonymousCheckbox.addEventListener("change", () => {
+    optionalDetails.hidden = anonymousCheckbox.checked;
+    reviewerName.disabled = anonymousCheckbox.checked;
+    reviewerName.required = !anonymousCheckbox.checked;
+  });
+  reviewerName.disabled = anonymousCheckbox.checked;
+  reviewerName.required = !anonymousCheckbox.checked;
+
+  filter.addEventListener("change", () => {
+    dashboardSearch.value = "";
+    renderDashboard();
+  });
+  [ratingFilter, sortSelect].forEach((control) => {
+    control.addEventListener("change", renderDashboard);
+  });
+  dashboardSearch.addEventListener("input", () => {
+    filter.value = "";
+    renderDashboard();
+  });
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    success.hidden = true;
+    error.hidden = true;
+    if (isSubmitting) return;
+    if (!feedbackClient) {
+      showFeedbackError("Reviews are temporarily unavailable because the Supabase library did not load. Reload the page and try again.");
+      return;
+    }
+    if (!form.reportValidity()) return;
+
+    const formData = new FormData(form);
+    const selectedCompany = String(formData.get("company") || "");
+    const company = (selectedCompany === "__other__"
+      ? String(formData.get("customCompany") || "")
+      : selectedCompany).trim();
+    const rating = Number(formData.get("rating"));
+    const category = String(formData.get("category") || "").trim();
+    const title = String(formData.get("title") || "").trim();
+    const description = String(formData.get("description") || "").trim();
+    const isAnonymous = anonymousCheckbox.checked;
+    const displayName = isAnonymous ? null : String(formData.get("name") || "").trim();
+    if (!company || company.length > 120 || !category || !Number.isInteger(rating) || rating < 1 || rating > 5
+      || !title || title.length > 100 || !description || description.length > 2000
+      || (!isAnonymous && (!displayName || displayName.length > 80))) {
+      error.textContent = "Please provide a company, category, 1–5 star rating, review title and description. Non-anonymous reviews also need a display name.";
+      error.hidden = false;
+      return;
+    }
+
+    const review = {
+      company,
+      category,
+      rating,
+      title,
+      description,
+      is_anonymous: isAnonymous,
+      display_name: displayName
+    };
+
+    isSubmitting = true;
+    submitButton.disabled = true;
+    submitButton.textContent = "Submitting review…";
+    try {
+      const { error: insertError } = await feedbackClient
+        .from("company_reviews")
+        .insert(review);
+      if (insertError) throw insertError;
+
+      form.reset();
+      anonymousCheckbox.checked = true;
+      optionalDetails.hidden = true;
+      reviewerName.disabled = true;
+      reviewerName.required = false;
+      customCompanyField.hidden = true;
+      customCompany.required = false;
+      companySearch.value = "";
+      populateCompanyOptions(companySelect, "", entries);
+      dashboardSearch.value = company;
+      ratingFilter.value = "";
+      try {
+        await loadFeedback();
+        filter.value = company;
+        dashboardSearch.value = company;
+        renderDashboard();
+        success.textContent = `Your review for ${company} was submitted successfully.`;
+      } catch (refreshError) {
+        success.textContent = `Your review for ${company} was submitted, but the dashboard could not refresh. ${formatFeedbackError(refreshError, "load")}`;
+      }
+      success.hidden = false;
+      success.focus();
+    } catch (submitError) {
+      showFeedbackError(formatFeedbackError(submitError, "submit"));
+    } finally {
+      isSubmitting = false;
+      submitButton.disabled = false;
+      submitButton.textContent = "Submit review ↗";
+    }
+  });
+
+  if (!feedbackClient) {
+    showFeedbackError("The Supabase library could not be loaded. Check your connection and reload the page.");
+    document.querySelector("#dashboard-notice").textContent = "Company reviews could not be loaded.";
+    return;
+  }
+  try {
+    await loadFeedback();
+  } catch (loadError) {
+    showFeedbackError(formatFeedbackError(loadError, "load"));
+    document.querySelector("#dashboard-notice").textContent = "Company reviews could not be loaded. Please try again.";
+  }
 }
 
-function populateCompanyOptions(select, searchTerm = "") {
+function populateCompanyOptions(select, searchTerm = "", entries = []) {
   const selected = select.value;
   const normalizedSearch = searchTerm.trim().toLocaleLowerCase();
-  const placeholder = new Option("Choose a company", "");
-  const options = [placeholder];
+  const options = [new Option("Choose a company", "")];
+  const allKnownCompanies = new Set(Object.values(companyGroups).flat());
 
   Object.entries(companyGroups).forEach(([industry, companies]) => {
     const matches = companies.filter((company) => company.toLocaleLowerCase().includes(normalizedSearch));
@@ -436,22 +514,57 @@ function populateCompanyOptions(select, searchTerm = "") {
     options.push(group);
   });
 
+  const communityCompanies = [...new Set(entries.map((entry) => entry.company))]
+    .filter((company) => !allKnownCompanies.has(company) && company.toLocaleLowerCase().includes(normalizedSearch))
+    .sort((a, b) => a.localeCompare(b));
+  if (communityCompanies.length) {
+    const group = document.createElement("optgroup");
+    group.label = "Companies with community reviews";
+    communityCompanies.forEach((company) => group.append(new Option(company, company)));
+    options.push(group);
+  }
+  options.push(new Option("Other company or institution…", "__other__"));
+
   select.replaceChildren(...options);
   if (selected && [...select.options].some((option) => option.value === selected)) select.value = selected;
 }
 
-function createFeedbackId() {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-    return crypto.randomUUID();
-  }
-  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+function normalizeFeedbackEntry(row) {
+  const rating = Number(row.rating);
+  return {
+    id: row.id,
+    company: String(row.company || ""),
+    category: String(row.category || ""),
+    rating: Number.isInteger(rating) && rating >= 1 && rating <= 5 ? rating : 0,
+    title: String(row.title || ""),
+    description: String(row.description || ""),
+    anonymous: Boolean(row.is_anonymous),
+    name: row.is_anonymous ? "" : String(row.display_name || ""),
+    createdAt: String(row.created_at || "")
+  };
 }
 
-function renderFeedbackDashboard(entries, companyFilter) {
+function renderFeedbackDashboard(entries, filters) {
   const list = document.querySelector("#feedback-list");
-  const matching = entries
-    .filter((entry) => !companyFilter || entry.company === companyFilter)
-    .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
+  const normalizedSearch = filters.search.trim().toLocaleLowerCase();
+  const searchMatches = entries.filter((entry) => !normalizedSearch
+    || entry.company.toLocaleLowerCase().includes(normalizedSearch));
+  const companyCounts = new Map();
+  searchMatches.forEach((entry) => {
+    const summary = companyCounts.get(entry.company) || { count: 0, total: 0 };
+    summary.count += 1;
+    summary.total += entry.rating;
+    companyCounts.set(entry.company, summary);
+  });
+  renderCompanyCards(companyCounts, entries, filters);
+
+  const matching = searchMatches
+    .filter((entry) => !filters.company || entry.company === filters.company)
+    .filter((entry) => !filters.rating || entry.rating === Number(filters.rating))
+    .sort((a, b) => {
+      const order = Date.parse(a.createdAt) - Date.parse(b.createdAt);
+      return filters.sort === "oldest" ? order : -order;
+    });
   const average = matching.length
     ? (matching.reduce((total, entry) => total + Number(entry.rating), 0) / matching.length).toFixed(1)
     : "—";
@@ -459,20 +572,23 @@ function renderFeedbackDashboard(entries, companyFilter) {
   document.querySelector("#feedback-count").textContent = String(matching.length);
   document.querySelector("#feedback-average").textContent = matching.length ? `${average} / 5` : "—";
   document.querySelector("#dashboard-notice").textContent = matching.length
-    ? "Ratings shown are based only on feedback saved in this browser."
-    : "No local feedback yet. Submit the first review to populate this demo dashboard.";
+    ? `Showing ${matching.length} ${matching.length === 1 ? "review" : "reviews"} from the community.`
+    : entries.length
+      ? "No reviews match these filters. Try changing your search or filters."
+      : "No company reviews yet. Be the first to share an experience.";
 
   const filter = document.querySelector("#feedback-filter");
   const currentFilter = filter.value;
-  const knownCompanies = Object.values(companyGroups).flat();
   filter.replaceChildren(new Option("All companies", ""));
-  knownCompanies
-    .filter((company) => entries.some((entry) => entry.company === company))
+  [...new Set(entries.map((entry) => entry.company))]
+    .sort((a, b) => a.localeCompare(b))
     .forEach((company) => filter.add(new Option(company, company)));
   if ([...filter.options].some((option) => option.value === currentFilter)) filter.value = currentFilter;
 
   if (!matching.length) {
-    list.replaceChildren(createTextElement("p", "Reviews for your selection will appear here."));
+    list.replaceChildren(createTextElement("p", entries.length
+      ? "Try another company or rating to find reviews."
+      : "Reviews will appear here as customers share their experiences."));
     list.firstElementChild.className = "feedback-empty";
     return;
   }
@@ -483,7 +599,7 @@ function renderFeedbackDashboard(entries, companyFilter) {
     const top = document.createElement("div");
     top.className = "feedback-entry-top";
     top.append(createTextElement("span", `${entry.company} · ${entry.category}`));
-    const rating = createTextElement("span", `${"★".repeat(entry.rating)}${"☆".repeat(5 - entry.rating)}`);
+    const rating = createTextElement("span", `${"★".repeat(entry.rating)}${"☆".repeat(5 - entry.rating)} ${entry.rating}/5`);
     rating.className = "feedback-entry-rating";
     rating.setAttribute("aria-label", `${entry.rating} out of 5 stars`);
     top.append(rating);
@@ -495,10 +611,58 @@ function renderFeedbackDashboard(entries, companyFilter) {
       ? "Date unavailable"
       : new Intl.DateTimeFormat("en-NG", { dateStyle: "medium" }).format(new Date(entry.createdAt));
     meta.append(createTextElement("span", author), createTextElement("time", dateText));
-    if (!entry.anonymous && entry.email) meta.append(createTextElement("span", entry.email));
     card.append(meta);
     return card;
   }));
+}
+
+function renderCompanyCards(companyCounts, entries, filters) {
+  const container = document.querySelector("#company-cards");
+  const selectedCompany = document.querySelector("#feedback-filter").value;
+  const companies = [...companyCounts.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+  if (!companies.length) {
+    container.replaceChildren();
+    return;
+  }
+
+  container.replaceChildren(...companies.map(([company, summary]) => {
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "company-review-card";
+    card.setAttribute("aria-pressed", String(company === selectedCompany));
+    const name = createTextElement("strong", company);
+    const rating = createTextElement("span", `${(summary.total / summary.count).toFixed(1)} ★`);
+    rating.className = "company-review-rating";
+    const count = createTextElement("span", `${summary.count} ${summary.count === 1 ? "review" : "reviews"}`);
+    card.append(name, rating, count);
+    card.addEventListener("click", () => {
+      document.querySelector("#feedback-filter").value = company;
+      document.querySelector("#dashboard-search").value = company;
+      renderFeedbackDashboard(entries, {
+        company,
+        search: company,
+        rating: document.querySelector("#rating-filter").value,
+        sort: document.querySelector("#review-sort").value || filters.sort
+      });
+    });
+    return card;
+  }));
+}
+
+function formatFeedbackError(error, operation) {
+  const code = error?.code;
+  const message = String(error?.message || "");
+  if (code === "42501" || /row-level security|permission denied|not allowed/i.test(message)) {
+    return operation === "submit"
+      ? "Supabase rejected the review under the current Row Level Security policies. Allow public inserts for valid reviews, without enabling update or delete."
+      : "Supabase denied public access to company reviews. Check that the table has a public SELECT policy.";
+  }
+  if (error instanceof TypeError || /fetch|network|timeout/i.test(message)) {
+    return "A network error prevented access to company reviews. Check your connection and try again.";
+  }
+  return operation === "submit"
+    ? `Your review could not be submitted. ${message || "Please check your connection and try again."}`
+    : `Company reviews could not be loaded. ${message || "Please try again."}`;
 }
 
 if (appName === "weather") initWeatherReport();

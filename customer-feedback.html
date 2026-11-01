@@ -7,6 +7,7 @@
     <meta name="description" content="Share customer feedback about companies operating in Nigeria.">
     <title>Customer Feedback — DestinyTech</title>
     <link rel="stylesheet" href="apps.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     <script src="apps.js" defer></script>
   </head>
   <body class="experience-page" data-app="feedback">
@@ -28,17 +29,23 @@
           <p class="form-intro">Keep it constructive. Do not include passwords, account numbers, or other sensitive information.</p>
           <p class="success-message" id="feedback-message" role="status" aria-live="polite" tabindex="-1" hidden></p>
           <form id="feedback-form">
-            <label class="field-label" for="company-search">Find a company</label>
+            <label class="field-label" for="company-search">Find a Nigerian company or institution</label>
             <input id="company-search" type="search" placeholder="Search by company name…" autocomplete="off">
             <label class="field-label" for="company-select">Company</label>
             <select id="company-select" name="company" required>
               <option value="">Choose a company</option>
+              <option value="__other__">Other company or institution…</option>
             </select>
+            <div id="custom-company-field" hidden>
+              <label class="field-label" for="custom-company">Company or institution name</label>
+              <input id="custom-company" name="customCompany" type="text" maxlength="120" placeholder="Enter the company name">
+            </div>
 
             <label class="field-label" for="service-category">Service category</label>
             <select id="service-category" name="category" required>
               <option value="">Choose a category</option>
               <option>Customer service</option><option>Product quality</option>
+              <option>Finance</option>
               <option>Delivery and fulfilment</option><option>Payments and billing</option>
               <option>App or website</option><option>Network or connectivity</option>
               <option>Travel experience</option><option>Other</option>
@@ -55,36 +62,54 @@
               </div>
             </fieldset>
 
-            <label class="field-label" for="feedback-title">Feedback title</label>
+            <label class="field-label" for="feedback-title">Review title</label>
             <input id="feedback-title" name="title" type="text" maxlength="100" required placeholder="Summarize your experience">
-            <label class="field-label" for="feedback-description">Tell us more</label>
+            <label class="field-label" for="feedback-description">Your experience</label>
             <textarea id="feedback-description" name="description" rows="5" maxlength="2000" required placeholder="What happened? What went well, or what could be improved?"></textarea>
 
             <label class="anonymous-toggle"><input id="anonymous-feedback" name="anonymous" type="checkbox" checked> Submit anonymously</label>
             <div class="optional-details" id="optional-details" hidden>
-              <label class="field-label" for="reviewer-name">Name <span>(optional)</span></label>
-              <input id="reviewer-name" name="name" type="text" maxlength="80" autocomplete="name">
-              <label class="field-label" for="reviewer-email">Email <span>(optional)</span></label>
-              <input id="reviewer-email" name="email" type="email" maxlength="254" autocomplete="email">
+              <label class="field-label" for="reviewer-name">Display name</label>
+              <input id="reviewer-name" name="name" type="text" maxlength="80" autocomplete="name" required>
             </div>
             <p class="form-error" id="feedback-error" role="alert" hidden></p>
-            <button class="app-button app-button-full" type="submit">Submit feedback <span aria-hidden="true">↗</span></button>
+            <button class="app-button app-button-full" type="submit">Submit review <span aria-hidden="true">↗</span></button>
           </form>
-          <p class="storage-note">Demo mode: submissions are saved only in this browser on this device. They are not sent to DestinyTech or the company.</p>
+          <p class="storage-note">Reviews are shared publicly with the DestinyTech community. Your display name is shown only when you choose not to submit anonymously.</p>
         </section>
 
         <section class="feedback-dashboard" aria-labelledby="dashboard-title">
           <div class="dashboard-heading">
-            <div><p class="app-kicker">COMMUNITY VOICE</p><h2 id="dashboard-title">Feedback dashboard</h2></div>
-            <label class="dashboard-filter" for="feedback-filter">Show
+            <div><p class="app-kicker">COMMUNITY VOICE</p><h2 id="dashboard-title">Company reviews</h2></div>
+          </div>
+          <label class="field-label dashboard-search-label" for="dashboard-search">Search companies</label>
+          <input id="dashboard-search" type="search" placeholder="Find reviews by company…" autocomplete="off">
+          <div class="dashboard-controls">
+            <label class="dashboard-filter" for="feedback-filter">Company
               <select id="feedback-filter"><option value="">All companies</option></select>
+            </label>
+            <label class="dashboard-filter" for="rating-filter">Rating
+              <select id="rating-filter">
+                <option value="">All ratings</option>
+                <option value="5">5 stars</option><option value="4">4 stars</option>
+                <option value="3">3 stars</option><option value="2">2 stars</option>
+                <option value="1">1 star</option>
+              </select>
+            </label>
+            <label class="dashboard-filter" for="review-sort">Sort
+              <select id="review-sort">
+                <option value="newest">Newest first</option>
+                <option value="oldest">Oldest first</option>
+              </select>
             </label>
           </div>
           <div class="feedback-stats" aria-live="polite">
             <div><strong id="feedback-count">0</strong><span>Reviews</span></div>
             <div><strong id="feedback-average">—</strong><span>Average rating</span></div>
           </div>
-          <p class="dashboard-notice" id="dashboard-notice" role="status"></p>
+          <div class="company-cards" id="company-cards" aria-label="Companies with reviews"></div>
+          <p class="dashboard-notice" id="dashboard-notice" role="status" aria-live="polite"></p>
+          <p class="feedback-loading" id="feedback-loading" role="status" hidden>Loading company reviews…</p>
           <div class="feedback-list" id="feedback-list" aria-live="polite"></div>
         </section>
       </div>
