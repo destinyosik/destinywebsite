@@ -6,6 +6,7 @@
     <meta name="theme-color" content="#000000">
     <meta name="description" content="Share customer feedback about companies operating in Nigeria.">
     <title>Customer Feedback — DestinyTech</title>
+    <script src="theme.js"></script>
     <link rel="stylesheet" href="apps.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     <script src="apps.js" defer></script>
@@ -13,7 +14,17 @@
   <body class="experience-page" data-app="feedback">
     <header class="app-header">
       <a class="app-wordmark" href="index.html">DESTINY<span>TECH</span></a>
-      <a class="app-home-link" href="index.html">← Back to DestinyTech</a>
+      <div class="app-header-actions">
+        <a class="app-home-link" href="index.html">← Back to DestinyTech</a>
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to light theme" aria-pressed="false">
+          <svg class="theme-toggle-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path class="moon-icon" d="M20.2 15.1A8.4 8.4 0 0 1 8.9 3.8 8.5 8.5 0 1 0 20.2 15.1Z" />
+            <circle class="sun-icon" cx="12" cy="12" r="4" />
+            <path class="sun-rays" d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" />
+          </svg>
+          <span data-theme-label>Dark</span>
+        </button>
+      </div>
     </header>
     <main class="app-container feedback-page">
       <section class="app-intro">
