@@ -7,7 +7,7 @@ function getSavedTheme() {
     return localStorage.getItem(themeStorageKey) === "light" ? "light" : "dark";
   } catch (error) {
     console.warn("The saved DestinyTech theme could not be read.", error);
-    return "dark";
+    return "night";
   }
 }
 

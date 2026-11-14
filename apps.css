@@ -9,7 +9,7 @@
   --app-gold-bright: #f3cf7e;
   --app-toggle-bg: rgba(217, 173, 86, 0.09);
   --app-toggle-glow: rgba(217, 173, 86, 0.16);
-  font-family: "Manrope", "Segoe UI", sans-serif;
+  font-family: "Inter", "Segoe UI Variable", "Segoe UI", sans-serif;
 }
 
 :root[data-theme="light"] {
@@ -50,9 +50,9 @@ body.experience-page {
   aspect-ratio: 1;
   border-radius: 50%;
   background:
-    radial-gradient(ellipse at 33% 25%, rgba(255, 245, 205, .9), transparent 9%),
-    radial-gradient(circle at 34% 30%, #e8c46c 0, #9a6c1b 16%, #241d10 55%, #080808 74%);
-  box-shadow: inset -18px -24px 35px #000b, 0 0 60px #b58b3614;
+    radial-gradient(ellipse at 33% 25%, rgba(219, 237, 255, .92), transparent 10%),
+    radial-gradient(circle at 34% 30%, #3972cb 0, #174891 20%, #10264b 58%, #080f1d 78%);
+  box-shadow: inset -18px -24px 35px #030918cc, 0 0 60px #2563eb24;
   content: "";
   opacity: .3;
   pointer-events: none;
