@@ -292,12 +292,10 @@ a:focus-visible {
   height: 31px;
 }
 
-.wordmark-symbol svg {
+.wordmark-symbol img {
   width: 100%;
   height: 100%;
-  stroke: var(--gold);
-  stroke-linejoin: round;
-  stroke-width: 1.4;
+  border-radius: 50%;
 }
 
 .wordmark-light {
@@ -446,7 +444,6 @@ p {
   line-height: 1.04;
 }
 
-.hero h1 span,
 .intro h2 span,
 .section-heading h2 span,
 .approach h2 span,
@@ -455,8 +452,18 @@ p {
   font-weight: 500;
 }
 
+.hero-cta-title {
+  display: block;
+  margin-top: 0.16em;
+  color: #fff;
+  font-size: 0.8em;
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  line-height: 1.04;
+}
+
 .hero-description {
-  max-width: 470px;
+  max-width: 620px;
   margin-bottom: 30px;
   color: #d3dded;
   font-size: 15px;
@@ -539,6 +546,28 @@ p {
   margin-top: 0;
 }
 
+.contact-prompt {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--gold-bright);
+  font-size: clamp(42px, 7.5vw, 88px) !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.065em;
+  line-height: 1;
+  animation: contact-pulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes contact-pulse {
+  from {
+    filter: brightness(0.65);
+    text-shadow: 0 0 0 rgba(244, 217, 158, 0);
+  }
+  to {
+    filter: brightness(1.35);
+    text-shadow: 0 0 24px rgba(244, 217, 158, 0.5);
+  }
+}
+
 .intro h2,
 .section-heading h2,
 .approach h2,
@@ -551,6 +580,11 @@ p {
 }
 
 .intro-detail {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 32px;
   padding-bottom: 5px;
 }
 
@@ -912,11 +946,14 @@ p {
   opacity: 0.62;
 }
 
-.next-mark svg {
+.next-mark img {
   width: 100%;
-  stroke: var(--gold);
-  stroke-linejoin: round;
-  stroke-width: 1.1;
+  border-radius: 50%;
+}
+
+.intro-detail p {
+  max-width: 700px;
+  margin-bottom: 0;
 }
 
 .next-orbit {
@@ -1148,6 +1185,12 @@ p {
     margin-top: 0;
   }
 
+  .intro-detail {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 16px;
+  }
+
   .intro h2,
   .section-heading h2,
   .approach h2 {
@@ -1319,6 +1362,10 @@ p {
   .blue-sphere {
     animation: none;
     will-change: auto;
+  }
+
+  .contact-prompt {
+    animation: none;
   }
 }
 
