@@ -658,7 +658,10 @@ function formatFeedbackError(error, operation) {
       : "Supabase denied public access to company reviews. Check that the table has a public SELECT policy.";
   }
   if (error instanceof TypeError || /fetch|network|timeout/i.test(message)) {
-    return "A network error prevented access to company reviews. Check your connection and try again.";
+    const guidance = "Check your internet connection and confirm the Supabase Project URL in apps.js matches an active project.";
+    return operation === "submit"
+      ? `A network error prevented submitting your review. ${guidance}`
+      : `A network error prevented loading company reviews. ${guidance}`;
   }
   return operation === "submit"
     ? `Your review could not be submitted. ${message || "Please check your connection and try again."}`
