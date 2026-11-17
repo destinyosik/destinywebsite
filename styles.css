@@ -438,7 +438,7 @@ p {
 
 .hero h1 {
   margin-bottom: 16px;
-  font-size: clamp(50px, 6.3vw, 78px);
+  font-size: clamp(47px, calc(6.3vw - 3px), 75px);
   font-weight: 600;
   letter-spacing: -0.075em;
   line-height: 1.04;
@@ -811,7 +811,13 @@ p {
 
 .contact-panel {
   min-height: 0;
+  border-color: rgba(96, 165, 250, 0.32);
+  background:
+    radial-gradient(ellipse at 87% 48%, rgba(37, 99, 235, 0.22), transparent 37%),
+    linear-gradient(115deg, #071a35 0%, #0b2347 100%);
 }
+
+.contact-panel .section-label { color: #b7d0fb; }
 
 .next-content {
   position: relative;
@@ -831,6 +837,7 @@ p {
 
 .contact-content h2 {
   margin: 19px 0 0;
+  color: #f3f6fc;
   font-size: clamp(38px, 4vw, 48px);
   font-weight: 500;
   letter-spacing: -0.065em;
@@ -838,7 +845,7 @@ p {
 }
 
 .contact-content h2 span {
-  color: var(--gold-bright);
+  color: #a9c9ff;
 }
 
 .next-content > p {
@@ -852,7 +859,7 @@ p {
 .contact-content > p {
   max-width: 520px;
   margin: 14px 0 27px;
-  color: #aaa59a;
+  color: #d3def0;
   font-size: 12px;
   line-height: 1.8;
 }
@@ -1032,7 +1039,7 @@ p {
   }
 
   .hero h1 {
-    font-size: clamp(47px, 7vw, 64px);
+    font-size: clamp(44px, calc(7vw - 3px), 61px);
   }
 
   .hero-actions {
@@ -1165,7 +1172,7 @@ p {
   }
 
   .hero h1 {
-    font-size: clamp(50px, 12vw, 68px);
+    font-size: clamp(47px, calc(12vw - 3px), 65px);
   }
 
   .hero-description {
@@ -1335,7 +1342,7 @@ p {
   }
 
   .hero h1 {
-    font-size: 46px;
+    font-size: 43px;
   }
 
   .hero-actions {
@@ -1491,10 +1498,9 @@ p {
 :root[data-theme="light"] .focus-grid .focus-card:hover,
 :root[data-theme="light"] .focus-grid .focus-card:focus-visible { border-color: #2563eb; background: #050b18; box-shadow: 0 0 28px rgba(37, 99, 235, 0.16); }
 :root[data-theme="light"] .approach-step .step-marker { border-color: rgba(37, 99, 235, 0.5); }
-:root[data-theme="light"] .next-panel { border-color: rgba(37, 99, 235, 0.24); background: radial-gradient(ellipse at 87% 48%, rgba(37, 99, 235, 0.11), transparent 37%), linear-gradient(115deg, #fff 0%, #f5f8ff 100%); }
+:root[data-theme="light"] .next-panel:not(.contact-panel) { border-color: rgba(37, 99, 235, 0.24); background: radial-gradient(ellipse at 87% 48%, rgba(37, 99, 235, 0.11), transparent 37%), linear-gradient(115deg, #fff 0%, #f5f8ff 100%); }
 :root[data-theme="light"] .next-orbit { border-color: rgba(37, 99, 235, 0.14); }
-:root[data-theme="light"] .next-content > p,
-:root[data-theme="light"] .contact-content > p { color: #475569; }
+:root[data-theme="light"] .next-content > p { color: #475569; }
 :root[data-theme="light"] .contact-link { border-color: rgba(37, 99, 235, 0.24); background: rgba(255, 255, 255, 0.82); }
 :root[data-theme="light"] .contact-link:hover { border-color: rgba(37, 99, 235, 0.68); background: rgba(37, 99, 235, 0.06); }
 :root[data-theme="light"] .contact-link-value { color: #1e293b; }
